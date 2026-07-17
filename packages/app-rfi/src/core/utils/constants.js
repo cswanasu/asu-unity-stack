@@ -17,6 +17,8 @@ export const KEY = {
   VARIANT1: "rfiVariant1",
   /** @type {"rfiVariant2"} */
   VARIANT2: "rfiVariant2",
+  /** @type {"rfiVariant3"} */
+  VARIANT3: "rfiVariant3",
 };
 
 export const CAMPUS = {

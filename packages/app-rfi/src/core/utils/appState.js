@@ -70,6 +70,7 @@ export const useRfiState = props => {
     filterByCollegeCode,
     filterByCampusCode,
     submissionUrl,
+    successRedirectUrl,
     isCertMinor,
   } = props;
   const [loaded, setLoaded] = useState(false);
@@ -82,6 +83,26 @@ export const useRfiState = props => {
   const step = steps[stepNumber] || steps[0]; // catch Storybook edge case
   const totalSteps = steps.length;
   const isLastStep = stepNumber === totalSteps - 1;
+
+  // For VARIANT3, we only submit the form if the user is on the last step or if they are on the first step and have selected "Online" for CampusProgramHasChoice. Otherwise, we allow them to go to the next step without submitting.
+  const shouldSubmitCurrentStep = values =>
+    isLastStep ||
+    (variant === KEY.VARIANT3 &&
+      stepNumber === 0 &&
+      values.CampusProgramHasChoice === KEY.ONLINE);
+
+  const getSubmitValues = values => {
+    const selectedCampus = values.CampusProgramHasChoice || values.Campus;
+
+    if (variant === KEY.VARIANT3 && selectedCampus === KEY.ONLINE) {
+      return {
+        ...values,
+        GdprConsent: true,
+      };
+    }
+
+    return values;
+  };
 
   const [degreeDataList, setDegreeDataList] = useState([]);
   const [certMinorEmail, setCertMinorEmail] = useState("");
@@ -124,14 +145,57 @@ export const useRfiState = props => {
     if (step.props.onSubmit) {
       await step.props.onSubmit(values, bag);
     }
-    if (isLastStep) {
+    if (shouldSubmitCurrentStep(values)) {
+      const submitValues = getSubmitValues(values);
+
       setRfiSubmitting(true);
-      rfiSubmit(values, submissionUrl, test, () => {
+
+      rfiSubmit(submitValues, submissionUrl, test, response => {
         setRfiSubmitting(false);
+
+        if (variant === KEY.VARIANT3) {
+          const serverErrors = response?.errors || response?.fieldErrors || {};
+          const hasServerErrors = Object.keys(serverErrors).length > 0;
+
+          if (hasServerErrors) {
+            bag.setErrors(serverErrors);
+
+            Object.keys(serverErrors).forEach(fieldName => {
+              bag.setFieldTouched(fieldName, true, false);
+            });
+
+            if (serverErrors.EmailAddress || serverErrors.Phone) {
+              setStepNumber(0);
+            }
+
+            return;
+          }
+
+          const submissionSucceeded =
+            response?.success === true || response?.status === "success";
+
+          const redirectUrl = response?.redirectUrl || successRedirectUrl;
+
+          if (submissionSucceeded && redirectUrl) {
+            window.location.assign(redirectUrl);
+          }
+
+          return;
+        }
+
         setSuccess(true);
-      });
+      },
+      {
+        keepCountry: variant === KEY.VARIANT3,
+      }
+    );
+
+
+
+
       return;
     }
+
     bag.setTouched({});
 
     goNext(values);
@@ -143,6 +207,8 @@ export const useRfiState = props => {
     onSubmit: handleSubmit,
     validationSchema: Yup.object(step.props.validationSchema),
   });
+
+  const isSubmitStep = shouldSubmitCurrentStep(formik.values);
 
   useEffect(() => {
     // Fetch the selected acadPlan
@@ -249,6 +315,7 @@ export const useRfiState = props => {
     formik,
     handleBack,
     rfiSubmitting,
+    isSubmitStep,
     step,
     totalSteps,
     stepNumber,
@@ -272,7 +339,7 @@ export const useRfiState = props => {
 
   if (success) {
     returnObject.showStepButtons = false;
-    returnObject.step = <Success successMsg={props.successMsg} />;
+    returnObject.step = <Success />;
 
     return returnObject;
   }

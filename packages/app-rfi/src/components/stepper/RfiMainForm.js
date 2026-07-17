@@ -2,9 +2,9 @@
 import PropTypes from "prop-types";
 import React from "react";
 
-const RfiMainForm = ({ rfiImage, children }) => {
+const RfiMainForm = ({ rfiImage, className = "", children }) => {
   return (
-    <div className="container rfi-container-inner">
+    <div className={`container rfi-container-inner ${className}`}>
       <div className="row">
         <div className="col col-12 ">
           <div className="uds-image-text-block-container">
@@ -23,6 +23,7 @@ const RfiMainForm = ({ rfiImage, children }) => {
 
 RfiMainForm.propTypes = {
   rfiImage: PropTypes.string.isRequired,
+  className: PropTypes.string,
   children: PropTypes.node.isRequired,
 };
 

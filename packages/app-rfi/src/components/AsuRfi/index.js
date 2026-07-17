@@ -9,6 +9,8 @@ import React, { useEffect, useState } from "react";
 // rendering, but otherwise, we only worry about using the correct markup and
 // tweaking a few styles
 
+import { Progress } from "reactstrap";
+
 import { betterPropNames, useRfiState } from "../../core/utils/appState";
 import { DATA_SOURCE } from "../../core/utils/constants";
 import { RfiContext } from "../../core/utils/rfiContext";
@@ -22,7 +24,7 @@ const currentScriptPath = getCurrentScriptPath();
 
 /**
  * @param {import("../../core/types/rfi-types").RFIProps} props
- * @return {React.ReactElement}
+ * @return {JSX.Element}
  */
 const AsuRfi = ({
   appPathFolder = "",
@@ -35,16 +37,19 @@ const AsuRfi = ({
   areaOfInterest,
   areaOfInterestOptional = false,
   programOfInterest,
+  programUrl,
   programOfInterestOptional = false,
   isCertMinor = false,
   country,
   stateProvince,
   successMsg,
+  successMsgs,
   test = false,
   dataSourceDegreeSearch = DATA_SOURCE.DEGREE_SEARCH,
   dataSourceAsuOnline = DATA_SOURCE.ASU_ONLINE,
   dataSourceCountriesStates = DATA_SOURCE.COUNTRIES_STATES,
   submissionUrl,
+  successRedirectUrl,
   ...restProps
 }) => {
   const props = {
@@ -58,16 +63,19 @@ const AsuRfi = ({
     areaOfInterest,
     areaOfInterestOptional,
     programOfInterest,
+    programUrl,
     programOfInterestOptional,
     isCertMinor,
     country,
     stateProvince,
     successMsg,
+    successMsgs,
     test,
     dataSourceDegreeSearch,
     dataSourceAsuOnline,
     dataSourceCountriesStates,
     submissionUrl,
+    successRedirectUrl,
     ...restProps,
   };
 
@@ -85,6 +93,11 @@ const AsuRfi = ({
   }, []);
 
   const rfiState = useRfiState(betterPropNames(props));
+
+  const rfiImage =
+  variant === "rfiVariant3"
+    ? "degree-rfi-graduates-1000px.jpg"
+    : "WS2-DefaultImagev01-Final.png";
 
   const noRfiAvailable = `RFI form not displayed. ${programOfInterest} has rfiDisplay set to false or does not exist`;
   useEffect(() => {
@@ -115,24 +128,26 @@ const AsuRfi = ({
         areaOfInterest,
         areaOfInterestOptional,
         programOfInterest,
+        programUrl,
         programOfInterestOptional,
         isCertMinor,
         country,
         stateProvince,
         successMsg,
+        successMsgs,
         test,
         dataSourceDegreeSearch,
         dataSourceAsuOnline,
         dataSourceCountriesStates,
         submissionUrl,
+        successRedirectUrl,
       }}
     >
       <div>
         <FormikProvider value={rfiState.formik}>
           <RfiMainForm
-            rfiImage={`${
-              appPathFolder || currentScriptPath
-            }/assets/img/WS2-DefaultImagev01-Final.png`}
+            className={variant === "rfiVariant3" ? "rfi-variant-3" : ""}
+            rfiImage={`${appPathFolder || currentScriptPath}/assets/img/${rfiImage}`}
           >
             <div>
               <div className="uds-rfi-form-wrapper">
@@ -157,7 +172,7 @@ export { AsuRfi };
 
 AsuRfi.propTypes = {
   appPathFolder: PropTypes.string,
-  variant: PropTypes.oneOf(["rfiVariant1", "rfiVariant2"]),
+  variant: PropTypes.oneOf(["rfiVariant1", "rfiVariant2", "rfiVariant3"]),
   campus: PropTypes.oneOf(["GROUND", "ONLNE", "NOPREF"]),
   /** Not be a complete list: "AWC", "CAC", "EAC", "LOSAN", "MESA", "POLY", "TEMPE", "WEST" */
   actualCampus: PropTypes.string,
@@ -169,14 +184,19 @@ AsuRfi.propTypes = {
   areaOfInterest: PropTypes.string,
   areaOfInterestOptional: PropTypes.bool,
   programOfInterest: PropTypes.string,
+  programUrl: PropTypes.string,
   programOfInterestOptional: PropTypes.bool,
   isCertMinor: PropTypes.bool,
   country: PropTypes.string,
   stateProvince: PropTypes.string,
   successMsg: PropTypes.string,
+  successMsgs: PropTypes.objectOf(
+    PropTypes.objectOf(PropTypes.string)
+  ),
   test: PropTypes.bool,
   dataSourceDegreeSearch: PropTypes.string,
   dataSourceAsuOnline: PropTypes.string,
   dataSourceCountriesStates: PropTypes.string,
   submissionUrl: PropTypes.string.isRequired,
+  successRedirectUrl: PropTypes.string,
 };

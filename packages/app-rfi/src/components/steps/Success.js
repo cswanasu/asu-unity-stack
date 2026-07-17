@@ -2,12 +2,248 @@
 import React from "react";
 
 import { sanitizeDangerousMarkup } from "@asu/shared";
+import { KEY } from "../../core/utils/constants";
 import { useRfiContext } from "../../core/utils/rfiContext";
+
+const CAREER = {
+  UGRAD: "UGRAD",
+  GRAD: "GRAD",
+};
+
+/**
+ * @param {string | undefined} careerAndStudentType
+ * @returns {string | undefined}
+ */
+const getCareerCode = careerAndStudentType => {
+  switch (careerAndStudentType) {
+    case KEY.FRESHMAN:
+    case KEY.TRANSFER:
+      return CAREER.UGRAD;
+
+    case KEY.READMISSION:
+      return CAREER.GRAD;
+
+    default:
+      return undefined;
+  }
+};
+
+/**
+ * @param {Record<string, any> | undefined} values
+ * @param {Record<string, any> | undefined} degreeData
+ * @returns {string | undefined}
+ */
+const getCampusCode = (values, degreeData) => {
+  const campus = values?.CampusProgramHasChoice || values?.Campus;
+
+  if (campus === KEY.ONLINE || campus === KEY.GROUND) {
+    return campus;
+  }
+
+  const campusCodes = degreeData?.campusCodes || [];
+  const isOnlineOnly =
+    campusCodes.length > 0 &&
+    campusCodes.includes(KEY.ONLINE) &&
+    !campusCodes.includes(KEY.GROUND);
+
+  if (campus === KEY.NOPREF && isOnlineOnly) {
+    return KEY.ONLINE;
+  }
+
+  if (campus === KEY.NOPREF) {
+    return KEY.GROUND;
+  }
+
+  return campus;
+};
+
+/** @type {Record<string, string>} */
+const CAMPUS_LABELS = {
+  TEMPE: "Tempe",
+  DTPHX: "Downtown Phoenix",
+  POLY: "Polytechnic",
+  WEST: "West Valley",
+  ONLNE: "Online",
+  GROUND: "On campus",
+  NOPREF: "On campus",
+};
+
+/**
+ * @param {unknown} value
+ * @returns {string}
+ */
+const escapeHtml = value => {
+  /** @type {Record<string, string>} */
+  const entities = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  };
+
+  return String(value ?? "").replace(/[&<>"']/g, char => entities[char] || char);
+};
+
+/**
+ * @param {object} params
+ * @param {Record<string, any> | undefined} params.degreeData
+ * @param {string | undefined} params.filterByCampusCode
+ * @param {Record<string, any> | undefined} params.values
+ * @returns {string}
+ */
+const getCampusName = ({ degreeData, filterByCampusCode, values }) => {
+  const campusCode =
+    filterByCampusCode ||
+    (degreeData?.campusCodes?.length === 1 ? degreeData.campusCodes[0] : "") ||
+    getCampusCode(values, degreeData);
+
+  return campusCode ? CAMPUS_LABELS[campusCode] || campusCode : "";
+};
+
+
+/**
+ * @param {object} params
+ * @param {string | undefined} params.programUrl
+ * @param {Record<string, any> | undefined} params.values
+ * @param {Record<string, any> | undefined} params.degreeData
+ * @returns {string}
+ */
+const getProgramUrl = ({ programUrl, values, degreeData }) => {
+  if (programUrl) {
+    return programUrl;
+  }
+
+  const programCode =
+    degreeData?.acadPlanCode || degreeData?.acadPlanKey || values?.Interest2;
+
+  if (!programCode) {
+    return "#";
+  }
+
+  const career = getCareerCode(values?.CareerAndStudentType);
+  const degreePath =
+    degreeData?.degreeType === KEY.UG || career === CAREER.UGRAD
+      ? "bachelors"
+      : "masters-phd";
+
+  return `https://degrees.apps.asu.edu/${degreePath}/major/ASU00/${encodeURIComponent(programCode)}/`;
+};
+
+
+/**
+ * @param {object} params
+ * @param {string | undefined} params.message
+ * @param {Record<string, any> | undefined} params.values
+ * @param {Record<string, any> | undefined} params.degreeData
+ * @param {string | undefined} params.programUrl
+ * @param {string | undefined} params.filterByCampusCode
+ * @returns {string | undefined}
+ */
+const replaceSuccessMsgTokens = ({
+  message,
+  values,
+  degreeData,
+  programUrl,
+  filterByCampusCode,
+}) => {
+  if (!message) {
+    return message;
+  }
+
+  const campusName = getCampusName({ degreeData, filterByCampusCode, values });
+  const programTitle = degreeData?.title || "";
+  const programTitleCampus = campusName
+    ? `${programTitle} - ${campusName}`
+    : programTitle;
+
+  const resolvedProgramUrl = getProgramUrl({
+    programUrl,
+    values,
+    degreeData,
+  });
+
+  /** @type {Record<string, string>} */
+  const tokens = {
+    firstName: values?.FirstName || "",
+    programUrl: resolvedProgramUrl,
+    programTitle,
+    campusName,
+    programTitleCampus,
+  };
+
+  return message.replace(/{{\s*([a-zA-Z0-9_]+)\s*}}/g, (match, tokenName) =>
+    escapeHtml(tokens[tokenName] ?? "")
+  );
+};
+
+/**
+ * @param {object} params
+ * @param {string | undefined} params.successMsg
+ * @param {Record<string, Record<string, string>> | undefined} params.successMsgs
+ * @param {Record<string, any> | undefined} params.values
+ * @param {Record<string, any> | undefined} params.degreeData
+ * @param {string | undefined} params.programUrl
+ * @param {string | undefined} params.filterByCampusCode
+ * @returns {string | undefined}
+ */
+const getResolvedSuccessMsg = ({
+  successMsg,
+  successMsgs,
+  values,
+  degreeData,
+  programUrl,
+  filterByCampusCode,
+}) => {
+  const campus = getCampusCode(values, degreeData);
+  const career = getCareerCode(values?.CareerAndStudentType);
+
+  if (!campus || !career) {
+    return replaceSuccessMsgTokens({
+      message: successMsg,
+      values,
+      degreeData,
+      programUrl,
+      filterByCampusCode,
+    });
+  }
+
+  const message = successMsgs?.[campus]?.[career] || successMsg;
+
+  return replaceSuccessMsgTokens({
+    message,
+    values,
+    degreeData,
+    programUrl,
+    filterByCampusCode,
+  });
+};
+
 
 // Component
 
 export const Success = () => {
-  const { successMsg } = useRfiContext();
+
+  const {
+    successMsg,
+    successMsgs,
+    formik,
+    degreeData,
+    programUrl,
+    filterByCampusCode,
+  } = useRfiContext();
+
+
+  const resolvedSuccessMsg = getResolvedSuccessMsg({
+    successMsg,
+    successMsgs,
+    values: formik?.values,
+    degreeData,
+    programUrl,
+    filterByCampusCode,
+  });
+
+
   return (
     <div className="rfi-submitted">
       <i
@@ -17,10 +253,10 @@ export const Success = () => {
       />
       <div className="rfi-submitted-sub-icon">Submitted</div>
       <h3 className="h2">Thank you for your interest in ASU.</h3>
-      {successMsg ? (
+      {resolvedSuccessMsg ? (
         <div
           className="rfi-success-msg-wrapper"
-          dangerouslySetInnerHTML={sanitizeDangerousMarkup(successMsg)}
+          dangerouslySetInnerHTML={sanitizeDangerousMarkup(resolvedSuccessMsg)}
         />
       ) : (
         <>

@@ -5,6 +5,7 @@ import { PII_VALUE } from "../../../core/utils/constants";
 import { fetchCountries } from "../../../core/utils/fetchCountries";
 import { useRfiContext } from "../../../core/utils/rfiContext";
 import { RfiSelect } from "../../controls";
+import PropTypes from "prop-types";
 
 // Options
 function getCountryOptions(resultsArrayOfObjects) {
@@ -24,9 +25,14 @@ function getCountryOptions(resultsArrayOfObjects) {
 /**
  * @param {{ gaData: import("@asu/shared").GAEventObject}} props
  */
-export const Country = ({ gaData }) => {
-  const label = "Country of citizenship";
-  const name = "CitizenshipCountry";
+// export const Country = ({ gaData }) => {
+//   const label = "Country of citizenship";
+//   const name = "CitizenshipCountry";
+export const Country = ({
+  gaData,
+  label = "Country of citizenship",
+  name = "CitizenshipCountry",
+}) => {
 
   const { dataSourceCountriesStates } = useRfiContext();
   const [countryOptions, setCountries] = useState([
@@ -64,5 +70,10 @@ export const Country = ({ gaData }) => {
   );
 };
 
-Country.propTypes = { gaData: gaEventPropTypes };
+// Country.propTypes = { gaData: gaEventPropTypes };
+Country.propTypes = {
+  gaData: gaEventPropTypes,
+  label: PropTypes.string,
+  name: PropTypes.string,
+};
 Country.gaName = "citizenship_country";

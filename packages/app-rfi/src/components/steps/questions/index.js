@@ -2,6 +2,7 @@ import * as Yup from "yup";
 
 import { Campus } from "./Campus";
 import { CampusProgramHasChoice } from "./CampusProgramHasChoice";
+import { CampusProgramHasChoiceRadio } from "./CampusProgramHasChoiceRadio";
 import { CareerAndStudentType } from "./CareerAndStudentType";
 import { Country } from "./Country";
 import { EmailAddress } from "./EmailAddress";
@@ -12,6 +13,7 @@ import { Interest1 } from "./Interest1";
 import { Interest2 } from "./Interest2";
 import { LastName } from "./LastName";
 import { MilitaryStatus } from "./MilitaryStatus";
+import { OnlineConsentText } from "./OnlineConsentText";
 import { Phone } from "./Phone";
 import { ZipCode } from "./ZipCode";
 
@@ -63,6 +65,7 @@ export const validation = {
 export {
   Campus,
   CampusProgramHasChoice,
+  CampusProgramHasChoiceRadio,
   CareerAndStudentType,
   Country,
   EmailAddress,
@@ -73,6 +76,7 @@ export {
   Interest2,
   LastName,
   MilitaryStatus,
+  OnlineConsentText,
   Phone,
   ZipCode,
 };

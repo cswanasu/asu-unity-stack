@@ -57,16 +57,17 @@ const removeUnansweredFields = (/** @type {FormPayload} */ values) =>
  * @returns {FormPayload}
  */
 function submissionFormFieldRemoveSideEffectKeys(
-  /** @type {FormPayload} */ payload
+  /** @type {FormPayload} */ payload,
+  { keepCountry = false } = {}
 ) {
   let output = { ...payload };
 
-  // Fix for un/controlled switch warning, made in RfiStepper.js, leaves this
-  // artifact. Remove Email.
   delete output.Email;
-  // side effect of phone number country code CitizenshipCountry
   delete output.CitizenshipCountry;
-  delete output.Country;
+
+  if (!keepCountry) {
+    delete output.Country;
+  }
 
   return output;
 }
@@ -76,7 +77,10 @@ function submissionFormFieldRemoveSideEffectKeys(
  * @param {FormPayload} payload
  * @returns {FormPayload}
  */
-function submissionFormFieldPrep(/** @type {FormPayload} */ payload) {
+function submissionFormFieldPrep(
+  /** @type {FormPayload} */ payload,
+  options = {}
+) {
   // ADJUST AND PROCESS FORM FIELDS
 
   let output = payload;
@@ -108,7 +112,7 @@ function submissionFormFieldPrep(/** @type {FormPayload} */ payload) {
   output.Zip = output.Zip ? output.Zip : output.ZipCode;
   delete output.ZipCode;
 
-  output = submissionFormFieldRemoveSideEffectKeys(output);
+  output = submissionFormFieldRemoveSideEffectKeys(output, options);
 
   // Can't transform the BirthDate to iso value during validation as it breaks
   // type checking in Yup, so doing it here. Also... Yup.date() lets dates
@@ -186,12 +190,14 @@ export const rfiSubmit = async (
   /** @type {FormPayload} */ value,
   submissionUrl = "",
   test = false,
-  callback = (/** @type {any} */ _) => ({})
+  callback = (/** @type {any} */ _) => ({}),
+  options = {}
+
 ) => {
   // MARSHALL FIELDS FOR THE PAYLOAD
 
   let payload = deepCloner(value);
-  payload = submissionFormFieldPrep(payload);
+  payload = submissionFormFieldPrep(payload, options);
   payload = submissionSetHiddenFields(payload, test);
   payload = removeUnansweredFields(payload);
 

@@ -3,7 +3,7 @@
 /**
  * @typedef {Object} RFIProps
  * @property {string} [appPathFolder]
- * @property {"rfiVariant1"|"rfiVariant2"} [variant]
+ * @property {"rfiVariant1"|"rfiVariant2"|"rfiVariant3"} [variant]
  * @property {string} [campus]
  * @property {string} [actualCampus]
  * @property {string} [college]
@@ -12,16 +12,19 @@
  * @property {string} [areaOfInterest]
  * @property {boolean} [areaOfInterestOptional]
  * @property {string} [programOfInterest]
+ * @property {string} [programUrl]
  * @property {boolean} [programOfInterestOptional]
  * @property {boolean} [isCertMinor]
  * @property {string} [country]
  * @property {string} [stateProvince]
  * @property {string} [successMsg]
+ * @property {Record<string, Record<string, string>>} [successMsgs]
  * @property {boolean} [test]
  * @property {string} [dataSourceDegreeSearch]
  * @property {string} [dataSourceAsuOnline]
  * @property {string} [dataSourceCountriesStates]
  * @property {string} submissionUrl
+ * @property {string} [successRedirectUrl]
  */
 
 /**
@@ -41,16 +44,19 @@
  * @property {string} [areaOfInterest]
  * @property {boolean} [areaOfInterestOptional]
  * @property {string} [programOfInterest]
+ * @property {string} [programUrl]
  * @property {boolean} [programOfInterestOptional]
  * @property {boolean} [isCertMinor]
  * @property {string} [country]
  * @property {string} [stateProvince]
  * @property {string} [successMsg]
+ * @property {Record<string, Record<string, string>>} [successMsgs]
  * @property {boolean} [test]
  * @property {string} [dataSourceDegreeSearch]
  * @property {string} [dataSourceAsuOnline]
  * @property {string} [dataSourceCountriesStates]
  * @property {string} [submissionUrl]
+ * @property {string} [successRedirectUrl]
  */
 
 /**

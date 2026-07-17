@@ -8,12 +8,15 @@ import {
 } from "../../../core/utils/constants";
 import { useRfiContext } from "../../../core/utils/rfiContext";
 import { RfiSelect } from "../../controls";
+import PropTypes from "prop-types";
 
 /**
  * @param {{ gaData: import("@asu/shared").GAEventObject}} props
  */
-export const CareerAndStudentType = ({ gaData }) => {
-  const label = "Select your student status";
+export const CareerAndStudentType = ({
+  gaData,
+  label = "Select your student status",
+}) => {
   const name = "CareerAndStudentType";
 
   const [studentTypeOptions, setStudentTypeOptions] = useState(
@@ -58,5 +61,8 @@ export const CareerAndStudentType = ({ gaData }) => {
   );
 };
 
-CareerAndStudentType.propTypes = { gaData: gaEventPropTypes };
+CareerAndStudentType.propTypes = {
+  gaData: gaEventPropTypes,
+  label: PropTypes.string,
+};
 CareerAndStudentType.gaName = "career_and_student_type";

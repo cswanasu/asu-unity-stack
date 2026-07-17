@@ -3,7 +3,9 @@ import React from "react";
 import {
   Campus,
   CampusProgramHasChoice,
+  CampusProgramHasChoiceRadio,
   CareerAndStudentType,
+  Country,
   EmailAddress,
   EntryTerm,
   FirstName,
@@ -12,6 +14,7 @@ import {
   Interest2,
   LastName,
   MilitaryStatus,
+  OnlineConsentText,
   Phone,
   ZipCode,
   validation,
@@ -122,6 +125,49 @@ const variants = {
       <Phone gaData={gaData2Of2} />
       <ZipCode gaData={gaData2Of2} />
       <EntryTerm gaData={gaData2Of2} />
+      <MilitaryStatus gaData={gaData2Of2} />
+      <GdprConsent gaData={gaData2Of2} />
+    </Step>,
+  ],
+  rfiVariant3: [
+    <Step
+      section="Request information"
+      validationSchema={{
+        FirstName: validation.FirstName,
+        LastName: validation.LastName,
+        EmailAddress: validation.EmailAddress,
+        Phone: validation.Phone,
+        CampusProgramHasChoice: validation.CampusProgramHasChoice,
+      }}
+    >
+      <h2 className="h3">Get more details about this degree</h2>
+      <p className="rfi-step1-intro">
+        Have questions about this degree? Fill out this form and we’ll get in touch.
+      </p>
+      <FirstName gaData={gaData1Of2} />
+      <LastName gaData={gaData1Of2} />
+      <EmailAddress gaData={gaData1Of2} label="Email" />
+      <Phone gaData={gaData1Of2} label="Phone number" />
+      <CampusProgramHasChoiceRadio gaData={gaData1Of2} />
+      <OnlineConsentText />
+    </Step>,
+
+    <Step
+      section="About me"
+      validationSchema={{
+        CareerAndStudentType: validation.CareerAndStudentType,
+        EntryTerm: validation.EntryTerm,
+        ZipCode: validation.ZipCode,
+        Country: validation.Country,
+        MilitaryStatus: validation.MilitaryStatus,
+        GdprConsent: validation.GdprConsent,
+      }}
+    >
+      <div className={"h4"}>Step 2 of 2</div>
+      <CareerAndStudentType gaData={gaData2Of2} label="Student status" />
+      <EntryTerm gaData={gaData2Of2} />
+      <ZipCode gaData={gaData2Of2} />
+      <Country gaData={gaData2Of2} label="Country" name="Country" />
       <MilitaryStatus gaData={gaData2Of2} />
       <GdprConsent gaData={gaData2Of2} />
     </Step>,

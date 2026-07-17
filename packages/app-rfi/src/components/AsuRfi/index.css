@@ -162,3 +162,68 @@ form.uds-form.uds-rfi .rfi-required-footnote i {
     max-width: 100%;
   }
 }
+
+/* rfiVariant3 only */
+.rfi-variant-3.rfi-container-inner {
+  max-width: 1180px;
+  margin-top: 2rem;
+  margin-bottom: 3rem;
+}
+
+.rfi-variant-3 .uds-rfi-form-wrapper .rfi-consent .rfi-consent-wording {
+  font-size: inherit;
+}
+
+.rfi-variant-3 .rfi-consent {
+  margin-bottom: 1.5rem;
+}
+
+@media screen and (min-width: 992px) {
+  .rfi-variant-3 .uds-image-text-block-container {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    overflow: visible;
+    border: 0;
+  }
+
+  .rfi-variant-3 .uds-image-text-block-image-container {
+    flex: 0 0 60%;
+    max-width: 60%;
+  }
+
+  .rfi-variant-3 .uds-image-text-block-image-container img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 0.75 / 1;
+    object-fit: cover;
+  }
+
+  .rfi-variant-3 .uds-image-text-block-text-container {
+    position: relative;
+    z-index: 1;
+    flex: 0 0 52%;
+    max-width: 52%;
+    margin-top: 48px;
+    margin-left: -8%;
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 4px 18px rgba(25, 25, 25, 0.12);
+  }
+
+  .rfi-variant-3
+    .uds-image-text-block-text-container
+    .uds-rfi-form-wrapper {
+    padding: 48px;
+  }
+
+  .rfi-variant-3 fieldset[role="group"] {
+    margin-top: 1rem;
+  }
+
+  .rfi-variant-3 fieldset[role="group"] .form-check {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 2rem;
+  }
+}

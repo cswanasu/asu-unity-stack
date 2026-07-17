@@ -3,12 +3,15 @@ import React from "react";
 import { gaEventPropTypes, trackGAEvent } from "@asu/shared";
 import { PII_VALUE } from "../../../core/utils/constants";
 import { RfiPhone } from "../../controls";
+import PropTypes from "prop-types";
 
 /**
  * @param {{ gaData: import("@asu/shared").GAEventObject}} props
  */
-export const Phone = ({ gaData }) => {
-  const label = "Phone";
+export const Phone = ({
+  gaData,
+  label = "Phone",
+}) => {
   const name = "Phone";
 
   return (
@@ -29,5 +32,8 @@ export const Phone = ({ gaData }) => {
   );
 };
 
-Phone.propTypes = { gaData: gaEventPropTypes };
+Phone.propTypes = {
+  gaData: gaEventPropTypes,
+  label: PropTypes.string,
+};
 Phone.gaName = "phone";

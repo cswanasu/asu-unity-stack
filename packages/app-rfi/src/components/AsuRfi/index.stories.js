@@ -101,7 +101,7 @@ export const DegreeSelectedWithMultiCampus = {
   render: Template.bind({}),
   args: {
     ...defaultArgs,
-    variant: KEY.VARIANT2,
+    variant: KEY.VARIANT3,
     studentType: KEY.GRADUATE,
     programOfInterest: "ECSPEDMED",
   },

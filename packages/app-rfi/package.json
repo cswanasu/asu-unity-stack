@@ -29,7 +29,8 @@
     "lint": "eslint --fix 'src/**/*.{js,jsx}' ",
     "test": "jest --config=./jest.config.cjs --passWithNoTests",
     "start:dev": "webpack-dashboard -- webpack serve -c webpack/webpack.dev.js",
-    "build": "vite build && cp -r src/assets dist/",
+    "build": "vite build && yarn build:standalone && cp -r src/assets dist/",
+    "build:standalone": "vite build --config vite.config.standalone.js",
     "build:stats": "webpack -c webpack/webpack.prod.js --profile --json=compilation-stats.json",
     "postbuild": "cp ./types/main.d.ts ./dist/main.d.ts",
     "storybook": "storybook dev -p 9020",
@@ -83,6 +84,7 @@
     "formik": "^2.1.4",
     "prop-types": "^15.7.2",
     "react-phone-input-2": "2.15.1",
+    "reactstrap": "^9",
     "yup": "^0.28.1",
     "yup-phone": "^1.2.19"
   },
