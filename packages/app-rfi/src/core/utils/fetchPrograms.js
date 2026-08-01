@@ -39,6 +39,11 @@ function getServiceUrl({
     "planCategories",
     "rfiDisplay",
     "degreeType",
+    "owners",
+    "emailAddr",
+    "phoneNumber",
+    "academicOfficeLocation",
+    "academicOfficeUrl",
     // "applicationDeadlines", // This can double the response size
   ]
     .map(term => `include=${term}`)

@@ -20,6 +20,7 @@ import {
   validation,
 } from "../steps/questions";
 import { RfiRequiredIndicator } from "../controls/controls-helpers";
+import { CurrentStudentHelp } from "../steps/CurrentStudentHelp";
 
 const Step = ({ children }) => children;
 
@@ -138,17 +139,23 @@ const variants = {
         EmailAddress: validation.EmailAddress,
         Phone: validation.Phone,
         CampusProgramHasChoice: validation.CampusProgramHasChoice,
+        MilitaryStatus: validation.MilitaryStatus,
       }}
     >
-      <h2 className="h3">Get more details about this degree</h2>
+      <CurrentStudentHelp />
+      <h2 className="h3">Start your future</h2>
       <p className="rfi-step1-intro">
-        Have questions about this degree? Fill out this form and we’ll get in touch.
+        Want to learn more about ASU? Fill out the form below to get details on when and how to apply, student life and more.
       </p>
+      <p><small className="text-body-secondary">
+        <i className="fas fa-circle uds-field-required" aria-hidden="true"></i> Indicates a required field
+      </small></p>
       <FirstName gaData={gaData1Of2} />
       <LastName gaData={gaData1Of2} />
       <EmailAddress gaData={gaData1Of2} label="Email" />
       <Phone gaData={gaData1Of2} label="Phone number" />
       <CampusProgramHasChoiceRadio gaData={gaData1Of2} />
+      <MilitaryStatus gaData={gaData1Of2} onlineOnly />
       <OnlineConsentText />
     </Step>,
 

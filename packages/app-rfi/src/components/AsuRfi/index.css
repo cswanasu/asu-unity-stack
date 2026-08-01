@@ -227,3 +227,191 @@ form.uds-form.uds-rfi .rfi-required-footnote i {
     margin-right: 2rem;
   }
 }
+
+/* Current ASU student slide-out for rfiVariant3 */
+.rfi-variant-3 .rfi-current-student-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: -48px -48px 48px;
+  padding: 1rem 1.5rem;
+  background-color: #ffc627;
+  color: #191919;
+  font-size: 1rem;
+}
+
+.rfi-variant-3 .rfi-current-student-alert i {
+  font-size: 1rem;
+}
+
+.rfi-variant-3 .rfi-current-student-alert-link {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #8c1d40;
+  text-decoration: underline;
+  font: inherit;
+  cursor: pointer;
+}
+
+.rfi-variant-3 .rfi-current-student-alert-link:hover,
+.rfi-variant-3 .rfi-current-student-alert-link:focus {
+  color: #5c0d25;
+  text-decoration: none;
+}
+
+.rfi-current-student-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+}
+
+.rfi-current-student-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  border: 0;
+  background: rgba(25, 25, 25, 0.55);
+  cursor: pointer;
+  animation: rfi-current-student-fade-in 180ms ease-out;
+}
+
+.rfi-current-student-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(480px, 100%);
+  height: 100%;
+  overflow-y: auto;
+  padding: 2rem;
+  background: #fff;
+  box-shadow: -6px 0 18px rgba(25, 25, 25, 0.2);
+  animation: rfi-current-student-slide-in 260ms ease-out;
+}
+
+@keyframes rfi-current-student-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rfi-current-student-slide-in {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rfi-current-student-overlay,
+  .rfi-current-student-panel {
+    animation: none;
+  }
+}
+
+.rfi-current-student-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  padding: 0.4rem 0.75rem;
+  border: 2px solid #191919;
+  background: #fff;
+  color: #191919;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.rfi-current-student-back:hover,
+.rfi-current-student-back:focus {
+  background: #191919;
+  color: #fff;
+}
+
+.rfi-current-student-panel h2 {
+  margin-bottom: 2rem;
+}
+
+.rfi-current-student-panel h3 {
+  margin-bottom: 1.5rem;
+}
+
+.rfi-current-student-panel a {
+  color: #8c1d40;
+  text-decoration: underline;
+}
+
+@media screen and (max-width: 576px) {
+  .rfi-variant-3 .rfi-current-student-alert {
+    margin: -48px -48px 32px;
+    padding: 1rem;
+    align-items: flex-start;
+  }
+
+  .rfi-current-student-panel {
+    padding: 1.5rem;
+  }
+}
+
+.rfi-current-student-drawer.is-closing .rfi-current-student-overlay {
+  animation: rfi-current-student-fade-out 260ms ease-in forwards;
+}
+
+.rfi-current-student-drawer.is-closing .rfi-current-student-panel {
+  animation: rfi-current-student-slide-out 260ms ease-in forwards;
+}
+
+@keyframes rfi-current-student-fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes rfi-current-student-slide-out {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Phone field styles for rfiVariant3 */
+.rfi-variant-3 .rfi-phone-form-group {
+  position: relative;
+}
+
+.rfi-variant-3 .rfi-phone-form-group .rfi-phone-input-button {
+  width: 58px;
+  z-index: 2;
+}
+
+.rfi-variant-3 .rfi-phone-form-group input.rfi-phone-input {
+  padding-left: 72px !important;
+}
+
+.rfi-variant-3
+  .rfi-phone-form-group
+  .rfi-phone-input-button
+  .selected-flag {
+  width: 58px;
+}
+
+.rfi-variant-3 form.uds-form.uds-rfi
+  .rfi-phone-form-group
+  input.rfi-phone-input {
+  padding-left: 70px !important;
+}

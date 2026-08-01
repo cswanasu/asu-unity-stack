@@ -9,6 +9,11 @@
  * @prop {"UG"|"GR"} degreeType
  * @prop {string} [planType]
  * @prop {string} [emailAddr]
+ * @prop {string} [contactOfficeName]
+ * @prop {string} [contactOfficeUrl]
+ * @prop {string} [contactOfficeLocation]
+ * @prop {string} [contactEmail]
+ * @prop {string} [contactPhone]
  * @prop {string[]} planCategories
  * @prop {[{strm: string, strmDescription: string}]} [applicationDeadlines]
  * @prop {string} title
@@ -61,6 +66,13 @@ export const normalizeDegreeData = data => {
 
         // curr.emailAddr
         emailAddr: curr.emailAddr,
+
+        // Current student contact information.
+        contactOfficeName: curr.owners?.[0]?.departmentDescription,
+        contactOfficeUrl: curr.academicOfficeUrl,
+        contactOfficeLocation: curr.academicOfficeLocation,
+        contactEmail: curr.emailAddr,
+        contactPhone: curr.phoneNumber,
 
         // curr.planCategories array
         planCategories:
