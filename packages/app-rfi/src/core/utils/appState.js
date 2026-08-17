@@ -21,6 +21,21 @@ const gradPropToFormValue = type => {
   return undefined;
 };
 
+const getLockedCampusChoice = props => {
+  if (props.variant !== KEY.VARIANT3) {
+    return undefined;
+  }
+
+  if (
+    props.setInitialValueCampusType === KEY.GROUND ||
+    props.setInitialValueCampusType === KEY.ONLINE
+  ) {
+    return props.setInitialValueCampusType;
+  }
+
+  return undefined;
+};
+
 export const betterPropNames = props => ({
   filterByCampusCode: props.actualCampus,
   filterByCollegeCode: props.college,
@@ -34,6 +49,7 @@ export const betterPropNames = props => ({
 
 const getInitialValues = props => ({
   Campus: props.setInitialValueCampusType,
+  CampusProgramHasChoice: getLockedCampusChoice(props),
   CareerAndStudentType: props.setInitialValueGradType,
   Interest1: props.setInitialValueAOI,
   Interest2: props.setValuePOI,

@@ -43,8 +43,8 @@ const RfiPhone = ({
               disableCountryGuess={disableCountryGuess}
               inputProps={{
                 name,
-
                 required: required,
+                autoComplete: "off",
               }}
               {...field}
               placeholder={helperText}

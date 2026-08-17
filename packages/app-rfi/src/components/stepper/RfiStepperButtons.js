@@ -25,13 +25,13 @@ export const RfiStepperButtons = ({
 }) => {
   return (
     <>
-      <nav aria-label="Request information form" className="container">
-        <div className="row justify-content-end">
-          <div className="col-6">
+      <nav aria-label="Request information form">
+        <div className="d-flex justify-content-between">
+          <div>
             {stepNumber > 0 ? (
               <Button
                 type="button"
-                className="btn btn-primary"
+                className="btn btn-secondary"
                 onClick={() => {
                   handleBack();
                   trackGAEvent({
@@ -46,13 +46,13 @@ export const RfiStepperButtons = ({
                 }}
               >
                 <span>
-                  <i className="fas fa-angle-left" aria-hidden="true" />
+                  <i className="fas fa-arrow-left" aria-hidden="true" />
                 </span>{" "}
-                Previous
+                Back
               </Button>
             ) : null}
           </div>
-          <div className="col-6 text-right">
+          <div>
             {/* Note: rfi-button and rfi-button-stepN classes are used by GA */}
             {!isSubmitStep ? (
               <Button

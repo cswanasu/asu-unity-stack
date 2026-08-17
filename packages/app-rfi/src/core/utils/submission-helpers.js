@@ -103,6 +103,11 @@ function submissionFormFieldPrep(
     default:
     // do nothing
   }
+
+  if (output.Career === "GRAD" && !output.StudentType) {
+    output.StudentType = "Masters";
+  }
+
   delete output.CareerAndStudentType;
 
   output.Campus = output.CampusProgramHasChoice || output.Campus;

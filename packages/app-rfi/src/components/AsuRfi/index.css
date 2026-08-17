@@ -171,7 +171,7 @@ form.uds-form.uds-rfi .rfi-required-footnote i {
 }
 
 .rfi-variant-3 .uds-rfi-form-wrapper .rfi-consent .rfi-consent-wording {
-  font-size: inherit;
+  font-size: 14px;
 }
 
 .rfi-variant-3 .rfi-consent {
@@ -414,4 +414,22 @@ form.uds-form.uds-rfi .rfi-required-footnote i {
   .rfi-phone-form-group
   input.rfi-phone-input {
   padding-left: 70px !important;
+}
+
+/* rfiVariant3 container padding tweaks */
+.container.rfi-container-inner.rfi-variant-3 {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* rfiVariant3 form button tweaks */
+.rfi-variant-3 .uds-rfi-form-wrapper nav[aria-label="Request information form"] .row {
+  justify-content: flex-end;
+  gap: 2rem;
+}
+
+.rfi-variant-3 .uds-rfi-form-wrapper nav[aria-label="Request information form"] .col-6 {
+  flex: 0 0 auto;
+  max-width: none;
+  width: auto;
 }

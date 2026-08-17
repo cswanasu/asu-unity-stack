@@ -87,10 +87,12 @@ export const EntryTerm = ({ gaData }) => {
           },
          */
         .reduce((result, { strm, strmDescription }) => {
-          if (!result.find(item => item.value === strm)) {
+          // if (!result.find(item => item.value === strm)) {
+          if (!result.find(item => item.key === `${strm}`)) {
             result.push({
               key: `${strm}`,
-              value: strm,
+              // value: strm,
+              value: `${strm}:${strmDescription}`,
               text: strmDescription,
             });
           }

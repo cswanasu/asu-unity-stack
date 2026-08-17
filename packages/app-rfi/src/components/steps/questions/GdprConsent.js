@@ -15,19 +15,16 @@ export const GdprConsent = ({ gaData }) => {
 
   const gdprWordingGround = (
     <>
-      By submitting my information, I consent to ASU contacting me about
-      educational services using email, direct mail, SMS/texting and digital
-      platforms. Message and data rates may apply. Consent is not required to
-      receive services, and I can unsubscribe at any time by contacting{" "}
+      By submitting my information, I consent to ASU contacting me about education services using email, direct mail, SMS/texting and digital platforms. Message and data rates may apply. Message frequency varies. Consent is not required to receive services, and I can withdraw consent by contacting ASU at{" "}
       <a href="mailto:UnsubFutureStudentComm@asu.edu">
         UnsubFutureStudentComm@asu.edu
       </a>
-      . I consent to ASU’s{" "}
+      {" "}or as described in communications I receive. Reply STOP to unsubscribe at any time or HELP for support. I consent to ASU’s{" "}
       <a href="https://asu.edu/about/text-message-terms">
         mobile terms and conditions
       </a>
-      , and{" "}
-      <a href="https://asu.edu/about/web-analytics-privacy">
+      {" "}and{" "}
+      <a href="https://asu.edu/about/web-analytics-privacy-2">
         Privacy Statements
       </a>
       , including the European Supplement.
@@ -70,11 +67,11 @@ export const GdprConsent = ({ gaData }) => {
             event: "select",
             type: "checkbox",
             section: "about me",
-            text: "i consent",
+            text: "I consent to receive SMS notifications",
           });
         }}
       >
-        I consent
+        I consent to receive SMS notifications
       </RfiCheckboxSingle>
     </div>
   );
