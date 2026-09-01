@@ -13,6 +13,7 @@ import { filterDataByProps } from "./filterPrograms";
  * @prop {string} [CampusProgramHasChoice] Campus program has choice
  * @prop {string} [CareerAndStudentType]
  * @prop {string} [Interest2]
+ * @prop {string} [variant]
  */
 
 /**
@@ -28,9 +29,13 @@ function getServiceUrl({
   CampusProgramHasChoice,
   CareerAndStudentType,
   Interest2,
+  variant,
 }) {
   let serviceUrl;
   let parameter = "";
+
+  // Variant 3 uses Data Potluck for online programs so AA and AS degrees are included.
+  const usePotluckForOnline = variant === KEY.VARIANT3;
 
   const includeFields = [
     "acadPlanMarketingDescription",
@@ -50,7 +55,7 @@ function getServiceUrl({
     .join("&");
 
   // ASUOnline API
-  if (Campus === KEY.ONLINE) {
+  if (Campus === KEY.ONLINE && !usePotluckForOnline) {
     parameter +=
       CareerAndStudentType === KEY.READMISSION
         ? `?category=${KEY.GRADUATE}`
@@ -60,7 +65,7 @@ function getServiceUrl({
   }
 
   // ASUOnline API - CampusProgramHasChoice is true, but Campus is not ONLINE Search all ONLINE programs
-  if (CampusProgramHasChoice === KEY.ONLINE) {
+  if (CampusProgramHasChoice === KEY.ONLINE && !usePotluckForOnline) {
     serviceUrl = `${dataSourceAsuOnline}`;
     return serviceUrl;
   }

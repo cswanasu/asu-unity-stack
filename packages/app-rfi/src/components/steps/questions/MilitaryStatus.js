@@ -1,6 +1,7 @@
 import React from "react";
 
-import { gaEventPropTypes, trackGAEvent } from "@asu/shared";
+import { gaEventPropTypes } from "@asu/shared";
+import { pushDataLayerEventToGa } from "../../../core/utils/google-analytics";
 import { RfiRadioGroup } from "../../controls";
 import PropTypes from "prop-types";
 import { KEY } from "../../../core/utils/constants";
@@ -21,6 +22,19 @@ const militaryOptions = [
   { key: "1", text: "No", value: "None" },
 ];
 
+const pushMilitaryStatusDataLayer = text => {
+  pushDataLayerEventToGa({
+    event: "select",
+    action: "click",
+    name: "onclick",
+    type: "checkbox",
+    region: "main content",
+    section: "request info ^ military or military dependent",
+    text,
+    component: "radio button",
+  });
+};
+
 /**
  * @param {{ gaData: import("@asu/shared").GAEventObject}} props
  */
@@ -35,7 +49,6 @@ export const MilitaryStatus = ({ gaData, onlineOnly = false }) => {
     return null;
   }
 
-
   const label =
     "Have you served in the U.S. Military or are you a military dependent?";
   const name = "MilitaryStatus";
@@ -46,14 +59,13 @@ export const MilitaryStatus = ({ gaData, onlineOnly = false }) => {
       id={name}
       name={name}
       options={militaryOptions}
-      onBlur={e =>
-        trackGAEvent({
-          ...gaData,
-          event: "select",
-          type: label,
-          text: e.target.value,
-        })
-      }
+      onBlur={e => {
+        const selectedOption = militaryOptions.find(
+          option => option.value === e.target.value
+        );
+
+        pushMilitaryStatusDataLayer(selectedOption?.text.toLowerCase());
+      }}
     />
   );
 };

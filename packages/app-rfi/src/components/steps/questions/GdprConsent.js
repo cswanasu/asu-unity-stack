@@ -66,8 +66,9 @@ export const GdprConsent = ({ gaData }) => {
             action: e.target.checked ? "click" : "unclick",
             event: "select",
             type: "checkbox",
-            section: "about me",
-            text: "I consent to receive SMS notifications",
+            section: "request info ^ gdpr consent",
+            text: "I consent to receive sms notifications",
+            component: "checkbox",
           });
         }}
       >

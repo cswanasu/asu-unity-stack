@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 
 import { gaEventPropTypes, trackGAEvent } from "@asu/shared";
-import { PII_VALUE } from "../../../core/utils/constants";
 import { fetchCountries } from "../../../core/utils/fetchCountries";
 import { useRfiContext } from "../../../core/utils/rfiContext";
 import { RfiSelect } from "../../controls";
@@ -20,6 +19,17 @@ function getCountryOptions(resultsArrayOfObjects) {
   return results;
 }
 
+const pushCitizenshipCountryDataLayer = ({ gaData, text }) => {
+  trackGAEvent({
+    ...gaData,
+    event: "select",
+    type: "select location",
+    section: "request info",
+    text,
+    component: "dropdown",
+  });
+};
+
 // Component
 
 /**
@@ -34,7 +44,11 @@ export const Country = ({
   name = "CitizenshipCountry",
 }) => {
 
-  const { dataSourceCountriesStates } = useRfiContext();
+  const {
+    dataSourceCountriesStates,
+    formik: { values, setFieldValue },
+  } = useRfiContext();
+
   const [countryOptions, setCountries] = useState([
     {
       key: "1",
@@ -45,12 +59,19 @@ export const Country = ({
 
   // Countries
   useEffect(() => {
-    // Fetch country options.
     fetchCountries(dataSourceCountriesStates, getCountryOptions).then(data => {
-      // Set state on countryOptions.
       setCountries(data);
+
+      const selectedCountryCode = (values[name] || "US").toUpperCase();
+      const selectedCountry = data.find(
+        country => country.value?.toUpperCase() === selectedCountryCode
+      );
+
+      if (selectedCountry?.text) {
+        setFieldValue("CitizenshipCountryName", selectedCountry.text);
+      }
     });
-  }, []); // Run only once
+  }, []);
 
   return (
     <RfiSelect
@@ -58,14 +79,16 @@ export const Country = ({
       id={name}
       name={name}
       options={countryOptions}
-      onBlur={e =>
-        trackGAEvent({
-          ...gaData,
-          event: "select",
-          type: label,
-          text: PII_VALUE,
-        })
-      }
+      onBlur={e => {
+        const selectedCountryName = e.target.selectedOptions[0].innerText;
+
+        setFieldValue("CitizenshipCountryName", selectedCountryName);
+
+        pushCitizenshipCountryDataLayer({
+          gaData,
+          text: selectedCountryName,
+        });
+      }}
     />
   );
 };

@@ -15,6 +15,7 @@ const RfiEmailInput = ({
   required = undefined,
   autoFocus = undefined,
   onBlur,
+  onChange,
 }) => (
   <Field name={name}>
     {({ field, form: { touched, errors }, meta }) => {
@@ -37,6 +38,10 @@ const RfiEmailInput = ({
             required={required}
             autoFocus={autoFocus}
             onBlur={onBlur}
+            onChange={e => {
+              field.onChange?.(e);
+              onChange?.(e);
+            }}
           />
           <RfiError isError={!!isError} metaError={meta.error} />
         </div>
@@ -50,6 +55,7 @@ RfiEmailInput.propTypes = {
   label: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   onBlur: PropTypes.func,
+  onChange: PropTypes.func,
   requiredIcon: PropTypes.bool,
   required: PropTypes.bool,
   autoFocus: PropTypes.bool,

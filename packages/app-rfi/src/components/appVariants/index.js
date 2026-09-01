@@ -174,7 +174,7 @@ const variants = {
       <CareerAndStudentType gaData={gaData2Of2} label="Student status" />
       <EntryTerm gaData={gaData2Of2} />
       <ZipCode gaData={gaData2Of2} />
-      <Country gaData={gaData2Of2} label="Country" name="Country" />
+      <Country gaData={gaData2Of2} label="Where are you currently studying?" name="CitizenshipCountry" />
       <MilitaryStatus gaData={gaData2Of2} />
       <GdprConsent gaData={gaData2Of2} />
     </Step>,

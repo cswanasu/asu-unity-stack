@@ -4,6 +4,8 @@ import React from "react";
 import { Button } from "reactstrap";
 
 import { trackGAEvent } from "@asu/shared";
+import { pushDataLayerEventToGa } from "../../core/utils/google-analytics";
+
 // Note on the spans around the FA i tags below:
 // When the host site/app deploys FA such that it replaces the i's with svg
 // tags, when React tries to rewrite the DOM we get hit with the error
@@ -14,6 +16,7 @@ import { trackGAEvent } from "@asu/shared";
 // The solution I hit on was to wrap the i's with spans so when the DOM
 // rewrite happens, the FA switcheroo is happening a layer below the element
 // that in this case React is trying to remove.
+
 export const RfiStepperButtons = ({
   stepNumber,
   totalSteps,
@@ -29,19 +32,29 @@ export const RfiStepperButtons = ({
         <div className="d-flex justify-content-between">
           <div>
             {stepNumber > 0 ? (
-              <Button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => {
+              <a
+                href="#"
+                className="rfi-stepper-back-link"
+                data-ga="Back"
+                data-ga-name="onclick"
+                data-ga-event="link"
+                data-ga-action="click"
+                data-ga-type="internal link"
+                data-ga-region="main content"
+                data-ga-section="request info"
+                onClick={event => {
+                  event.preventDefault();
+
                   handleBack();
                   trackGAEvent({
+                    event: "link",
                     action: "click",
                     name: "onclick",
-                    type: "click",
+                    type: "internal link",
                     region: "main content",
-                    section: step.props.section,
-                    text: "prev",
-                    component: `step ${stepNumber + 1} of ${totalSteps}`,
+                    section: "request info",
+                    text: "back arrow",
+                    component: "button",
                   });
                 }}
               >
@@ -49,7 +62,7 @@ export const RfiStepperButtons = ({
                   <i className="fas fa-arrow-left" aria-hidden="true" />
                 </span>{" "}
                 Back
-              </Button>
+              </a>
             ) : null}
           </div>
           <div>
@@ -60,20 +73,18 @@ export const RfiStepperButtons = ({
                 className={`btn btn-primary rfi-button-step${stepNumber + 1}`}
                 onClick={() =>
                   trackGAEvent({
+                    event: "form",
                     action: "click",
                     name: "onclick",
                     type: "click",
                     region: "main content",
-                    section: step.props.section,
-                    text: "next",
-                    component: `step ${stepNumber + 1} of ${totalSteps}`,
+                    section: "request info",
+                    text: "continue",
+                    component: "button",
                   })
                 }
               >
-                Next{" "}
-                <span>
-                  <i className="fas fa-angle-right" aria-hidden="true" />
-                </span>
+                Continue
               </Button>
             ) : (
               <Button
@@ -81,15 +92,15 @@ export const RfiStepperButtons = ({
                 className="rfi-submit btn btn-primary"
                 disabled={!!isSubmitting || rfiSubmitting}
                 onClick={() =>
-                  trackGAEvent({
+                  pushDataLayerEventToGa({
+                    event: "form",
                     action: "click",
                     name: "onclick",
+                    type: "click",
                     region: "main content",
-                    event: "form",
-                    type: "submit",
-                    section: step.props.section,
+                    section: "request info",
                     text: "submit",
-                    component: `step ${stepNumber + 1} of ${totalSteps}`,
+                    component: "button",
                   })
                 }
               >

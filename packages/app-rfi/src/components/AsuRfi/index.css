@@ -211,22 +211,31 @@ form.uds-form.uds-rfi .rfi-required-footnote i {
     box-shadow: 0 4px 18px rgba(25, 25, 25, 0.12);
   }
 
-  .rfi-variant-3
-    .uds-image-text-block-text-container
-    .uds-rfi-form-wrapper {
+  .rfi-variant-3 .uds-image-text-block-text-container .uds-rfi-form-wrapper {
     padding: 48px;
   }
+
 
   .rfi-variant-3 fieldset[role="group"] {
     margin-top: 1rem;
   }
 
-  .rfi-variant-3 fieldset[role="group"] .form-check {
-    display: inline-flex;
-    align-items: center;
-    margin-right: 2rem;
+}
+
+@media screen and (max-width: 768px) {
+  .rfi-variant-3 .uds-image-text-block-text-container .uds-rfi-form-wrapper {
+    padding: 24px;
   }
 }
+
+.rfi-variant-3 fieldset[role="group"] .form-check {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 2rem;
+  padding-left: 0;
+}
+
+
 
 /* Current ASU student slide-out for rfiVariant3 */
 .rfi-variant-3 .rfi-current-student-alert {
@@ -349,9 +358,9 @@ form.uds-form.uds-rfi .rfi-required-footnote i {
   text-decoration: underline;
 }
 
-@media screen and (max-width: 576px) {
+@media screen and (max-width: 768px) {
   .rfi-variant-3 .rfi-current-student-alert {
-    margin: -48px -48px 32px;
+    margin: -24px -24px 32px !important;
     padding: 1rem;
     align-items: flex-start;
   }
@@ -443,4 +452,13 @@ form.uds-form.uds-rfi .rfi-required-footnote i {
     line-height: 1.5rem !important;
     padding: 0.75rem 2rem !important;
   }
+}
+
+.rfi-stepper-back-link {
+  padding-left: 0;
+}
+
+/* RFI image background for variant 3 */
+.rfi-variant-3 .uds-image-text-block-container {
+  background-color: transparent;
 }

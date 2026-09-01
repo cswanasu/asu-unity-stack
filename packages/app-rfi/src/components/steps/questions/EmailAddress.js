@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useRef } from "react";
 
-import { gaEventPropTypes, trackGAEvent } from "@asu/shared";
-import { PII_VALUE } from "../../../core/utils/constants";
+import { gaEventPropTypes } from "@asu/shared";
+import { pushDataLayerEventToGa } from "../../../core/utils/google-analytics";
 import { RfiEmailInput } from "../../controls";
 import PropTypes from "prop-types";
 
@@ -16,6 +16,32 @@ export const EmailAddress = ({
 }) => {
   const name = "EmailAddress";
 
+  const hasTrackedValue = useRef(false);
+  const latestValue = useRef("");
+
+  const pushEmailDataLayer = value => {
+    if (!value || hasTrackedValue.current) {
+      return;
+    }
+
+    const { component, ...emailGaData } = gaData;
+
+    pushDataLayerEventToGa({
+      ...emailGaData,
+      event: "form",
+      action: "click",
+      name: "onclick",
+      region: "main content",
+      type: "blur",
+      section: "request info ^ email",
+      text: value.toLowerCase(),
+      component: "form field",
+    });
+
+    hasTrackedValue.current = true;
+  };
+
+
   return (
     <RfiEmailInput
       label={label}
@@ -24,13 +50,12 @@ export const EmailAddress = ({
       requiredIcon
       required
       autoFocus={autoFocus}
-      onBlur={e =>
-        trackGAEvent({
-          ...gaData,
-          type: label,
-          text: PII_VALUE,
-        })
-      }
+      onBlur={e => {
+        pushEmailDataLayer(e.target.value || latestValue.current);
+      }}
+      onChange={e => {
+        latestValue.current = e.target.value;
+      }}
     />
   );
 };

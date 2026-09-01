@@ -1,7 +1,8 @@
 import React from "react";
 
-import { gaEventPropTypes, trackGAEvent } from "@asu/shared";
 import { KEY } from "../../../core/utils/constants";
+import { gaEventPropTypes } from "@asu/shared";
+import { pushDataLayerEventToGa } from "../../../core/utils/google-analytics";
 import { RfiRadioGroup } from "../../controls";
 import { useRfiContext } from "../../../core/utils/rfiContext";
 
@@ -37,14 +38,20 @@ export const CampusProgramHasChoiceRadio = ({ gaData }) => {
       id={name}
       name={name}
       options={options}
-      onBlur={e =>
-        trackGAEvent({
-          ...gaData,
+      onBlur={e => {
+        const selectedOption = options.find(option => option.value === e.target.value);
+
+        pushDataLayerEventToGa({
           event: "select",
-          type: label,
-          text: e.target.value,
-        })
-      }
+          action: "click",
+          name: "onclick",
+          type: "checkbox",
+          region: "main content",
+          section: "request info ^ campus",
+          text: selectedOption?.text === "Fully online" ? "online" : "in-person",
+          component: "radio button",
+        });
+      }}
     />
   );
 };

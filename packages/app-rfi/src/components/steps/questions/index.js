@@ -62,11 +62,15 @@ export const validation = {
   MilitaryStatus: Yup.string(),
 };
 
+const CitizenshipCountry = Country;
+CitizenshipCountry.gaName = "citizenship_country";
+
 export {
   Campus,
   CampusProgramHasChoice,
   CampusProgramHasChoiceRadio,
   CareerAndStudentType,
+  CitizenshipCountry,
   Country,
   EmailAddress,
   EntryTerm,

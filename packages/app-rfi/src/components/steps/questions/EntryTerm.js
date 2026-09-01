@@ -87,11 +87,9 @@ export const EntryTerm = ({ gaData }) => {
           },
          */
         .reduce((result, { strm, strmDescription }) => {
-          // if (!result.find(item => item.value === strm)) {
           if (!result.find(item => item.key === `${strm}`)) {
             result.push({
               key: `${strm}`,
-              // value: strm,
               value: `${strm}:${strmDescription}`,
               text: strmDescription,
             });
@@ -131,8 +129,10 @@ export const EntryTerm = ({ gaData }) => {
           trackGAEvent({
             ...gaData,
             event: "select",
-            type: label,
+            type: "select entry term",
+            section: "request info",
             text: e.target.selectedOptions[0].innerText,
+            component: "dropdown",
           })
         }
       />

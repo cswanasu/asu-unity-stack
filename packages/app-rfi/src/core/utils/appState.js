@@ -61,6 +61,7 @@ const getInitialValues = props => ({
   EntryTerm: undefined,
   GdprConsent: false,
   CitizenshipCountry: undefined,
+  CitizenshipCountryName: undefined,
   // Street1: undefined,
   // City: undefined,
   // State: props.stateProvince,
@@ -113,6 +114,7 @@ export const useRfiState = props => {
     if (variant === KEY.VARIANT3 && selectedCampus === KEY.ONLINE) {
       return {
         ...values,
+        Interest2: forceUpdatedPlan || values.Interest2,
         GdprConsent: true,
       };
     }
@@ -131,23 +133,27 @@ export const useRfiState = props => {
     setStepNumber(Math.min(stepNumber + 1, totalSteps - 1));
   };
 
+  // The focus was triggering dataLayer event for the first name field.
+  // const handleBack = () => {
+  //   // setSnapshot(values);
+  //   setStepNumber(Math.max(stepNumber - 1, 0));
+  //   setTimeout(() => {
+  //     // Try to find the form with both 'uds-form' and 'uds-rfi' classes
+  //     const rfiForm = document.querySelector("form.uds-form.uds-rfi");
+
+  //     if (rfiForm) {
+  //       // Find the first input or select element inside the form
+  //       const firstField = rfiForm.querySelector("input, select");
+
+  //       if (firstField) {
+  //         // Set focus on the found input or select element
+  //         firstField.focus();
+  //       }
+  //     }
+  //   }, 0); // Execute after current call stack is cleared (non-blocking)
+  // };
   const handleBack = () => {
-    // setSnapshot(values);
     setStepNumber(Math.max(stepNumber - 1, 0));
-    setTimeout(() => {
-      // Try to find the form with both 'uds-form' and 'uds-rfi' classes
-      const rfiForm = document.querySelector("form.uds-form.uds-rfi");
-
-      if (rfiForm) {
-        // Find the first input or select element inside the form
-        const firstField = rfiForm.querySelector("input, select");
-
-        if (firstField) {
-          // Set focus on the found input or select element
-          firstField.focus();
-        }
-      }
-    }, 0); // Execute after current call stack is cleared (non-blocking)
   };
 
   const handleStepValidate = values => {
@@ -166,48 +172,63 @@ export const useRfiState = props => {
 
       setRfiSubmitting(true);
 
-      rfiSubmit(submitValues, submissionUrl, test, response => {
-        setRfiSubmitting(false);
+      rfiSubmit(
+        submitValues,
+        submissionUrl,
+        test,
+        response => {
+          if (variant !== KEY.VARIANT3) {
+            setRfiSubmitting(false);
+          }
 
-        if (variant === KEY.VARIANT3) {
-          const serverErrors = response?.errors || response?.fieldErrors || {};
-          const hasServerErrors = Object.keys(serverErrors).length > 0;
+          if (variant === KEY.VARIANT3) {
+            const serverErrors = response?.errors || response?.fieldErrors || {};
+            const hasServerErrors = Object.keys(serverErrors).length > 0;
 
-          if (hasServerErrors) {
-            bag.setErrors(serverErrors);
+            if (hasServerErrors) {
+              setRfiSubmitting(false);
+              bag.setErrors(serverErrors);
 
-            Object.keys(serverErrors).forEach(fieldName => {
-              bag.setFieldTouched(fieldName, true, false);
-            });
+              Object.keys(serverErrors).forEach(fieldName => {
+                bag.setFieldTouched(fieldName, true, false);
+              });
 
-            if (serverErrors.EmailAddress || serverErrors.Phone) {
-              setStepNumber(0);
+              if (serverErrors.EmailAddress || serverErrors.Phone) {
+                setStepNumber(0);
+              }
+
+              return;
+            }
+
+            const submissionSucceeded =
+              response?.success === true || response?.status === "success";
+
+            const redirectUrl = response?.redirectUrl || successRedirectUrl;
+
+            if (submissionSucceeded && redirectUrl) {
+              setTimeout(() => {
+                window.location.assign(redirectUrl);
+              }, 2000);
+            } else {
+              setRfiSubmitting(false);
             }
 
             return;
           }
 
-          const submissionSucceeded =
-            response?.success === true || response?.status === "success";
-
-          const redirectUrl = response?.redirectUrl || successRedirectUrl;
-
-          if (submissionSucceeded && redirectUrl) {
-            window.location.assign(redirectUrl);
-          }
-
-          return;
+          setSuccess(true);
+        },
+        {
+          keepCountry: variant === KEY.VARIANT3,
+          keepCitizenshipCountry:
+            variant === KEY.VARIANT3 &&
+            formik.values.CampusProgramHasChoice !== KEY.ONLINE,
+          degreeData,
+          degreeDataList,
+          isCertMinor,
+          waitForSubmitSuccess: variant === KEY.VARIANT3,
         }
-
-        setSuccess(true);
-      },
-      {
-        keepCountry: variant === KEY.VARIANT3,
-      }
-    );
-
-
-
+      );
 
       return;
     }
@@ -231,7 +252,12 @@ export const useRfiState = props => {
     const fetchData = async () => {
       let Interest2 = props.programOfInterest || formik.values.Interest2;
       Interest2 = Interest2 === KEY.FALSE_EMPTY ? undefined : Interest2;
-      // If
+
+      const interest2ForLookup =
+        variant === KEY.VARIANT3 && Interest2?.includes("-")
+          ? Interest2.split("-").pop()
+          : Interest2;
+
       if (Interest2) {
         fetchDegreesData({
           dataSourceDegreeSearch,
@@ -239,7 +265,8 @@ export const useRfiState = props => {
           CareerAndStudentType: formik.values.CareerAndStudentType,
           Campus: formik.values.Campus,
           CampusProgramHasChoice: formik.values.CampusProgramHasChoice,
-          Interest2,
+          Interest2: interest2ForLookup,
+          variant,
         }).then(([response, data]) => {
           if (response === "Error") {
             // eslint-disable-next-line no-console
@@ -251,6 +278,7 @@ export const useRfiState = props => {
             // @ts-ignore
             console.log(data[0]);
           }
+
           const { emailAddr, planType } = data[0];
           setDegreeData(data[0]);
           if (emailAddr) {
@@ -274,10 +302,15 @@ export const useRfiState = props => {
         dataSourceAsuOnline,
         filterByDepartmentCode,
         filterByCollegeCode,
-        filterByCampusCode,
+        filterByCampusCode:
+          variant === KEY.VARIANT3 &&
+          formik.values.CampusProgramHasChoice === KEY.ONLINE
+            ? KEY.ONLINE
+            : filterByCampusCode,
         Campus: formik.values.Campus,
         CampusProgramHasChoice: formik.values.CampusProgramHasChoice,
         CareerAndStudentType: formik.values.CareerAndStudentType,
+        variant,
       }).then(([response, data]) => {
         if (response === "Error") {
           // eslint-disable-next-line no-console
@@ -294,14 +327,32 @@ export const useRfiState = props => {
           formik.values.Interest2 &&
           formik.values.Interest2 !== KEY.FALSE_EMPTY
         ) {
+          // const selectedDegree = data.find(
+          //   plan =>
+          //     plan.acadPlanCode === formik.values.Interest2 || // check for PLAN pattern
+          //     plan.acadCode === formik.values.Interest2 // check for PROGRAM-PLAN pattern
+          // );
+          // if (selectedDegree?.acadPlanKey) {
+          //   setForceUpdatedPlan(selectedDegree.acadPlanKey);
+          // }
+
+          const selectedProgramCode = formik.values.Interest2;
+
           const selectedDegree = data.find(
             plan =>
-              plan.acadPlanCode === formik.values.Interest2 || // check for PLAN pattern
-              plan.acadCode === formik.values.Interest2 // check for PROGRAM-PLAN pattern
+              plan.acadPlanKey === selectedProgramCode ||
+              plan.acadCode === selectedProgramCode ||
+              plan.acadPlanCode === selectedProgramCode ||
+              plan.acadPlanKey?.endsWith(`-${selectedProgramCode}`) ||
+              plan.acadCode?.endsWith(`-${selectedProgramCode}`)
           );
+
           if (selectedDegree?.acadPlanKey) {
             setForceUpdatedPlan(selectedDegree.acadPlanKey);
           }
+
+
+
         }
       });
     };

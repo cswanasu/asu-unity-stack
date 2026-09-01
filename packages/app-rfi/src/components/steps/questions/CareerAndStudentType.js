@@ -10,6 +10,17 @@ import { useRfiContext } from "../../../core/utils/rfiContext";
 import { RfiSelect } from "../../controls";
 import PropTypes from "prop-types";
 
+const pushCareerAndStudentTypeDataLayer = ({ gaData, text }) => {
+  trackGAEvent({
+    ...gaData,
+    event: "select",
+    type: "select career and student type",
+    section: "request info",
+    text,
+    component: "dropdown",
+  });
+};
+
 /**
  * @param {{ gaData: import("@asu/shared").GAEventObject}} props
  */
@@ -50,10 +61,8 @@ export const CareerAndStudentType = ({
       requiredIcon
       required
       onBlur={e =>
-        trackGAEvent({
-          ...gaData,
-          event: "select",
-          type: label,
+        pushCareerAndStudentTypeDataLayer({
+          gaData,
           text: e.target.selectedOptions[0].innerText,
         })
       }

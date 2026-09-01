@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useRef } from "react";
 
-import { gaEventPropTypes, trackGAEvent } from "@asu/shared";
-import { PII_VALUE } from "../../../core/utils/constants";
+import { gaEventPropTypes } from "@asu/shared";
+import { pushDataLayerEventToGa } from "../../../core/utils/google-analytics";
 import { RfiTextInput } from "../../controls";
 
 /**
@@ -11,6 +11,31 @@ export const LastName = ({ gaData }) => {
   const label = "Last name";
   const name = "LastName";
 
+  const hasTrackedValue = useRef(false);
+  const latestValue = useRef("");
+
+  const pushLastNameDataLayer = value => {
+    if (!value || hasTrackedValue.current) {
+      return;
+    }
+
+    const { component, ...lastNameGaData } = gaData;
+
+    pushDataLayerEventToGa({
+      ...lastNameGaData,
+      event: "form",
+      action: "click",
+      name: "onclick",
+      region: "main content",
+      type: "blur",
+      section: "request info ^ last name",
+      text: value.toLowerCase(),
+      component: "form field",
+    });
+
+    hasTrackedValue.current = true;
+  };
+
   return (
     <RfiTextInput
       label={label}
@@ -18,13 +43,12 @@ export const LastName = ({ gaData }) => {
       name={name}
       requiredIcon
       required
-      onBlur={e =>
-        trackGAEvent({
-          ...gaData,
-          type: label,
-          text: PII_VALUE,
-        })
-      }
+      onBlur={e => {
+        pushLastNameDataLayer(e.target.value || latestValue.current);
+      }}
+      onChange={e => {
+        latestValue.current = e.target.value;
+      }}
     />
   );
 };

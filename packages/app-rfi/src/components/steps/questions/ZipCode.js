@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 
 import { gaEventPropTypes, trackGAEvent } from "@asu/shared";
-import { KEY, PII_VALUE } from "../../../core/utils/constants";
+import { KEY } from "../../../core/utils/constants";
 import { useRfiContext } from "../../../core/utils/rfiContext";
 import { RfiTextInput } from "../../controls";
 
@@ -41,8 +41,11 @@ export const ZipCode = ({ gaData }) => {
       onBlur={e =>
         trackGAEvent({
           ...gaData,
-          type: label,
-          text: PII_VALUE,
+          event: "form",
+          type: "blur",
+          section: "request info ^ zip code",
+          text: e.target.value,
+          component: "form field",
         })
       }
     />

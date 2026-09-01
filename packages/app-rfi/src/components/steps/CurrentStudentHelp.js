@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { createPortal } from "react-dom";
+import { pushDataLayerEventToGa } from "../../core/utils/google-analytics";
 import { useRfiContext } from "../../core/utils/rfiContext";
 
 const CURRENT_REQUEST_URL = "https://admission.asu.edu/current-request";
@@ -37,6 +38,44 @@ const buildCurrentRequestUrl = degreeData => {
   return `${CURRENT_REQUEST_URL}?${params.toString()}`;
 };
 
+const pushCurrentStudentHelpClick = () => {
+  pushDataLayerEventToGa({
+    event: "modal",
+    action: "open",
+    name: "onclick",
+    type: "click",
+    region: "main content",
+    section: "already an asu student?",
+    text: "get your questions answered.",
+    component: "rfi banner",
+  });
+};
+
+const pushCurrentStudentLinkClick = ({ type, text }) => {
+  pushDataLayerEventToGa({
+    event: "link",
+    action: "click",
+    name: "onclick",
+    type,
+    region: "main content",
+    section: "questions about this degree?",
+    text,
+    component: "current asu students",
+  });
+};
+
+const pushCurrentStudentBackClick = () => {
+  pushDataLayerEventToGa({
+    event: "modal",
+    action: "close",
+    name: "onclick",
+    type: "click",
+    region: "main content",
+    section: "current asu students",
+    text: "back",
+  });
+};
+
 export const CurrentStudentHelp = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -45,6 +84,7 @@ export const CurrentStudentHelp = () => {
   const currentRequestUrl = buildCurrentRequestUrl(degreeData);
 
   const openDrawer = () => {
+    pushCurrentStudentHelpClick();
     setIsClosing(false);
     setIsOpen(true);
   };
@@ -56,6 +96,11 @@ export const CurrentStudentHelp = () => {
       setIsOpen(false);
       setIsClosing(false);
     }, 260);
+  };
+
+  const closeDrawerWithBackClick = () => {
+    pushCurrentStudentBackClick();
+    closeDrawer();
   };
 
   const drawer = isOpen ? (
@@ -81,7 +126,7 @@ export const CurrentStudentHelp = () => {
         <button
           type="button"
           className="rfi-current-student-back"
-          onClick={closeDrawer}
+          onClick={closeDrawerWithBackClick}
         >
           <i className="fas fa-arrow-left" aria-hidden="true" /> Back
         </button>
@@ -91,7 +136,17 @@ export const CurrentStudentHelp = () => {
         <h3>Questions about this degree?</h3>
 
         <p>
-          <a href={currentRequestUrl} target="_blank" rel="noreferrer">
+          <a
+            href={currentRequestUrl}
+            target="_blank"
+            rel="noreferrer"
+            onClick={() =>
+              pushCurrentStudentLinkClick({
+                type: "internal link",
+                text: "complete this form",
+              })
+            }
+          >
             Complete this form
           </a>{" "}
           and we&apos;ll follow up with you.
@@ -111,6 +166,12 @@ export const CurrentStudentHelp = () => {
                     href={degreeData.contactOfficeUrl || "#"}
                     target="_blank"
                     rel="noreferrer"
+                    onClick={() =>
+                      pushCurrentStudentLinkClick({
+                        type: "internal link",
+                        text: degreeData.contactOfficeName?.toLowerCase(),
+                      })
+                    }
                   >
                     {degreeData.contactOfficeName}
                   </a>
@@ -124,7 +185,15 @@ export const CurrentStudentHelp = () => {
 
             {degreeData.contactEmail && (
               <p>
-                <a href={`mailto:${degreeData.contactEmail}`}>
+                <a
+                  href={`mailto:${degreeData.contactEmail}`}
+                  onClick={() =>
+                    pushCurrentStudentLinkClick({
+                      type: "external link",
+                      text: degreeData.contactEmail?.toLowerCase(),
+                    })
+                  }
+                >
                   {degreeData.contactEmail}
                 </a>
               </p>

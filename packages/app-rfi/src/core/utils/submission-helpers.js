@@ -2,7 +2,6 @@
 import { deepCloner } from "@asu/shared";
 import { KEY } from "./constants";
 import { pushDataLayerEventToGa, setClientId } from "./google-analytics";
-import * as questions from "../../components/steps/questions";
 
 /**
  * @typedef {Object} FormPayload
@@ -14,6 +13,7 @@ import * as questions from "../../components/steps/questions";
  * @property {string} [Career]
  * @property {string} [CareerAndStudentType]
  * @property {string} [CitizenshipCountry]
+ * @property {string} [CitizenshipCountryName]
  * @property {string} [Country]
  * @property {string} [Email]
  * @property {string} [EmailAddress]
@@ -30,6 +30,25 @@ import * as questions from "../../components/steps/questions";
  * @property {string} [URL]
  * @property {string} [Zip]
  * @property {string} [ZipCode]
+ */
+
+/**
+ * @typedef {Object} SubmitOptions
+ * @property {boolean} [keepCountry]
+ * @property {boolean} [keepCitizenshipCountry]
+ * @property {boolean} [isCertMinor]
+ * @property {boolean} [waitForSubmitSuccess]
+ * @property {{
+ *   title?: string,
+ *   acadCode?: string,
+ *   acadPlanCode?: string
+ * }} [degreeData]
+ * @property {Array<{
+ *   title?: string,
+ *   acadCode?: string,
+ *   acadPlanCode?: string,
+ *   acadPlanKey?: string
+ * }>} [degreeDataList]
  */
 
 /**
@@ -58,12 +77,16 @@ const removeUnansweredFields = (/** @type {FormPayload} */ values) =>
  */
 function submissionFormFieldRemoveSideEffectKeys(
   /** @type {FormPayload} */ payload,
-  { keepCountry = false } = {}
+  { keepCountry = false, keepCitizenshipCountry = false } = {}
 ) {
   let output = { ...payload };
 
   delete output.Email;
-  delete output.CitizenshipCountry;
+  delete output.CitizenshipCountryName;
+
+  if (!keepCitizenshipCountry) {
+    delete output.CitizenshipCountry;
+  }
 
   if (!keepCountry) {
     delete output.Country;
@@ -167,29 +190,147 @@ function submissionSetHiddenFields(
   return output;
 }
 
-const preparePushGaEventData = (/** @type {FormPayload} */ payload) => {
-  const gaData = {
-    event: "rfi-submit",
-    name: "onclick",
-    action: "click",
-    type: "click",
-    region: "main content",
-    section: "request information",
-    text: "submit",
-  };
-  let formValues = { ...payload };
-  formValues = removeUnansweredFields(formValues);
-  formValues = submissionFormFieldRemoveSideEffectKeys(formValues);
 
-  Object.entries(formValues).forEach(([key, val]) => {
-    // @ts-ignore
-    const gaKey = questions[key]?.gaName || key;
-    // @ts-ignore
-    gaData[gaKey] = val;
-  });
+const getCampusText = payload => {
+  const campus = payload.CampusProgramHasChoice || payload.Campus;
 
-  pushDataLayerEventToGa(gaData);
+  if (campus === KEY.ONLINE) {
+    return "online";
+  }
+
+  if (campus === KEY.GROUND) {
+    return "in-person";
+  }
+
+  return campus?.toLowerCase();
 };
+
+const getCareerText = (payload, options = {}) => {
+  if (options.isCertMinor) {
+    return "certificate";
+  }
+
+  if (
+    payload.CareerAndStudentType === "First Time Freshman" ||
+    payload.CareerAndStudentType === "Transfer" ||
+    payload.Career === "UGRAD"
+  ) {
+    return "undergraduate";
+  }
+
+  if (
+    payload.CareerAndStudentType === "Readmission" ||
+    payload.Career === "GRAD"
+  ) {
+    return "graduate";
+  }
+
+  return payload.CareerAndStudentType?.toLowerCase();
+};
+
+const getStudentStatusText = (/** @type {FormPayload} */ payload) => {
+  if (payload.CareerAndStudentType === KEY.READMISSION) {
+    return "masters";
+  }
+
+  return payload.CareerAndStudentType?.toLowerCase();
+};
+
+const getMilitaryService = (/** @type {FormPayload} */ payload) => {
+  if (payload.MilitaryStatus === "None") {
+    return false;
+  }
+
+  if (payload.MilitaryStatus) {
+    return true;
+  }
+
+  return undefined;
+};
+
+const getPlanCodeFromSubmittedProgramCode = (
+  /** @type {string | undefined} */ programCode
+) => (programCode?.includes("-") ? programCode.split("-").pop() : programCode);
+
+const getMatchingDegreeData = (
+  /** @type {FormPayload} */ payload,
+  /** @type {SubmitOptions} */ options = {}
+) => {
+  const submittedProgramCode = payload.Interest2;
+  const submittedPlanCode =
+    getPlanCodeFromSubmittedProgramCode(submittedProgramCode);
+  const degreeDataList = options.degreeDataList || [];
+  const degreeData = options.degreeData || {};
+
+  return (
+    degreeDataList.find(
+      plan =>
+        plan.acadPlanKey === submittedProgramCode ||
+        plan.acadCode === submittedProgramCode ||
+        plan.acadPlanCode === submittedProgramCode ||
+        plan.acadPlanKey === submittedPlanCode ||
+        plan.acadPlanCode === submittedPlanCode ||
+        plan.acadCode?.endsWith(`-${submittedPlanCode}`)
+    ) ||
+    (degreeData.acadPlanKey === submittedProgramCode ||
+    degreeData.acadCode === submittedProgramCode ||
+    degreeData.acadPlanCode === submittedProgramCode ||
+    degreeData.acadPlanKey === submittedPlanCode ||
+    degreeData.acadPlanCode === submittedPlanCode ||
+    degreeData.acadCode?.endsWith(`-${submittedPlanCode}`)
+      ? degreeData
+      : {})
+  );
+};
+
+
+
+
+const preparePushGaEventData = (
+  /** @type {FormPayload} */ payload,
+  options = {}
+) => {
+  const matchingDegreeData = getMatchingDegreeData(payload, options);
+  const submittedProgramCode = matchingDegreeData.acadCode || payload.Interest2;
+  const isOnline = getCampusText(payload) === "online";
+
+  pushDataLayerEventToGa({
+    event: "form",
+    name: "onsubmit",
+    action: "rfi submit",
+    type: "submit",
+    region: "main content",
+    section: "request info",
+    text: "rfi form submitted",
+    component: "button",
+    first_name: payload.FirstName?.toLowerCase(),
+    last_name: payload.LastName?.toLowerCase(),
+    email: payload.EmailAddress?.toLowerCase(),
+    phone: payload.Phone,
+    campus: getCampusText(payload),
+    career: getCareerText(payload, options),
+    area_of_interest: payload.Interest1?.toLowerCase(),
+    // program: degreeData.title?.toLowerCase(),
+    program: matchingDegreeData.title?.toLowerCase(),
+    program_code: submittedProgramCode,
+    military_service: getMilitaryService(payload),
+
+    ...(isOnline
+      ? {}
+      : {
+          student_status: getStudentStatusText(payload),
+          zip_code: payload.ZipCode?.toLowerCase(),
+          entry_term: payload.EntryTerm?.toLowerCase(),
+          gdpr_consent: payload.GdprConsent?.toString().toLowerCase(),
+          location: (
+            payload.CitizenshipCountryName || payload.CitizenshipCountry
+          )?.toLowerCase(),
+        }),
+
+  });
+};
+
+
 
 export const rfiSubmit = async (
   /** @type {FormPayload} */ value,
@@ -211,10 +352,12 @@ export const rfiSubmit = async (
   // TODO Confirm sourcing for ga_clientid
   payload = setClientId(payload);
 
-  // Google Analytics push to simulate submit button click
-  // after validation has occurred.
-  // Send form answers to dataLayer using raw form values as users entered them.
-  preparePushGaEventData(value);
+  const shouldWaitForSubmitSuccess = options.waitForSubmitSuccess === true;
+
+  // For variant 1 and 2, submit analytics. For variant 3, submit analytics is pushed after the POST succeeds; see the response handler below.
+  if (!shouldWaitForSubmitSuccess) {
+    preparePushGaEventData(value, options);
+  }
 
   if (test) {
     // eslint-disable-next-line no-console
@@ -236,8 +379,23 @@ export const rfiSubmit = async (
     body: JSON.stringify(payload),
   }).then(response => response.json());
 
-  // Race the fetch promise against the timeout promise
-  return Promise.race([fetchPromise, timeoutPromise]).then(response =>
-    callback(response)
-  );
+
+  // Push the submitted form details only after the POST is considered successful.
+  // For Variant 3, there is no timeout. Wait until receive response from Java side.
+  if (shouldWaitForSubmitSuccess) {
+    return fetchPromise.then(response => {
+      const submissionSucceeded =
+        response?.success === true || response?.status === "success";
+
+      if (submissionSucceeded) {
+        preparePushGaEventData(value, options);
+      }
+
+      return callback(response);
+    });
+  }
+
+  return Promise.race([fetchPromise, timeoutPromise]).then(response => {
+    return callback(response);
+  });
 };

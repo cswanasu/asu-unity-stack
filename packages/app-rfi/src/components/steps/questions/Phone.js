@@ -1,7 +1,7 @@
 import React from "react";
 
-import { gaEventPropTypes, trackGAEvent } from "@asu/shared";
-import { PII_VALUE } from "../../../core/utils/constants";
+import { gaEventPropTypes } from "@asu/shared";
+import { pushDataLayerEventToGa } from "../../../core/utils/google-analytics";
 import { RfiPhone } from "../../controls";
 import PropTypes from "prop-types";
 
@@ -21,13 +21,21 @@ export const Phone = ({
       name={name}
       requiredIcon
       required
-      onBlur={e =>
-        trackGAEvent({
-          ...gaData,
-          type: label,
-          text: PII_VALUE,
-        })
-      }
+      onBlur={e => {
+        const { component, ...phoneGaData } = gaData;
+
+        pushDataLayerEventToGa({
+          ...phoneGaData,
+          event: "form",
+          action: "click",
+          name: "onclick",
+          region: "main content",
+          type: "blur",
+          section: "request info ^ phone number",
+          text: e.target.value.toLowerCase(),
+          component: "form field",
+        });
+      }}
     />
   );
 };
